@@ -1,5 +1,29 @@
-# vondrart-final
+# Vondrart Studio premium redesign
 
-Final static Next.js source for the vondrart studio portfolio clone.
+Clean Next.js static export rebuild for Vondrart Studio.
 
-This repository is intentionally separate from the older working repo so the final handoff does not mix with previous iterations.
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+## Production build
+
+```bash
+npm run build
+npx serve@latest out -l 3012
+```
+
+Cloudflare Pages:
+
+- Build command: `npm run build`
+- Output directory: `out`
+
+## Content
+
+- Project data: `src/data/projects.ts`
+- Main UI sections: `src/components`
+- Images and logos: `public/images`
+- Local fonts: `public/fonts`
