@@ -216,13 +216,6 @@ function swatchTextColor(hex: string) {
   return luminance > 0.58 ? "#070918" : "#f6f0e4";
 }
 
-function cardImages(project: Project) {
-  const baseImage =
-    project.id === "dopamine-tour" || project.id === "syndikat-legal" ? project.hero : project.cardImage;
-  const hoverImage = baseImage === project.hero ? project.cardImage : project.hero;
-  return { baseImage, hoverImage };
-}
-
 export function Projects() {
   return (
     <section className="section projects-section" id="projekty">
@@ -233,7 +226,7 @@ export function Projects() {
 
       <div className="project-grid">
         {projects.map((project, index) => {
-          const { baseImage, hoverImage } = cardImages(project);
+          const baseImage = project.cardImage;
           const isFirstRow = index < 3;
 
           return (
@@ -253,14 +246,6 @@ export function Projects() {
                   fetchPriority={isFirstRow ? "high" : "auto"}
                 />
                 <img
-                  className="project-card-hover-image"
-                  src={hoverImage}
-                  alt=""
-                  decoding="async"
-                  loading="lazy"
-                  fetchPriority="low"
-                />
-                <img
                   className="project-logo"
                   src={project.logo}
                   alt={`${project.name} logo`}
@@ -268,7 +253,6 @@ export function Projects() {
                   loading={isFirstRow ? "eager" : "lazy"}
                   fetchPriority="low"
                 />
-                <span className="project-hover-label">Zobrazit projekt</span>
               </figure>
               <div className="project-meta">
                 <span>{project.category}</span>

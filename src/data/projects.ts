@@ -95,7 +95,7 @@ export const projects: Project[] = [
     services: ["Brand Identity", "Logo System", "Visual System", "Social Media", "Web Design"],
     logo: "/images/dopamine-tour-logo.png",
     hero: "/images/dopamine-radnice.webp",
-    cardImage: "/images/dopamine-tour-visual.webp",
+    cardImage: "/images/dopamine-tour-cover.webp",
     palette: ["#fefaeb", "#73c9e6", "#5c5aa4", "#e84a94", "#0e101f"],
     gallery: [
       {

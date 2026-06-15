@@ -725,3 +725,51 @@
     transition-duration: 1ms !important;
   }
 }
+
+/* Client pass: project tiles stay static, without hover image swaps or CTA pills. */
+.project-card-hover-image,
+.project-hover-label {
+  display: none !important;
+}
+
+.project-card .project-card-image {
+  transform: none !important;
+  filter: none !important;
+  transition: filter 180ms ease, opacity 180ms ease !important;
+}
+
+.project-card:hover .project-card-image {
+  transform: none !important;
+  filter: blur(2px) saturate(0.96) !important;
+}
+
+.project-card:hover .project-media::after {
+  opacity: 0 !important;
+}
+
+.project-card:hover .project-logo {
+  transform: none !important;
+}
+
+.project-bonghemia .project-card-image,
+.project-bonghemia:hover .project-card-image,
+.project-cotyploty .project-card-image,
+.project-cotyploty:hover .project-card-image {
+  opacity: 0 !important;
+}
+
+.project-bonghemia .project-logo,
+.project-bonghemia:hover .project-logo,
+.project-cotyploty .project-logo,
+.project-cotyploty:hover .project-logo {
+  opacity: 0.88 !important;
+}
+
+.project-card:not(.project-bonghemia):not(.project-cotyploty) .project-logo,
+.project-card:not(.project-bonghemia):not(.project-cotyploty):hover .project-logo {
+  opacity: 0 !important;
+}
+
+.project-dopamine-tour .project-card-image {
+  object-position: center center !important;
+}
