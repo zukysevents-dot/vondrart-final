@@ -78,3 +78,19 @@
     }
   });
 })();
+
+(() => {
+  document.addEventListener("click", (event) => {
+    const button = event.target && event.target.closest ? event.target.closest("[data-ill-scroll]") : null;
+    if (!button) return;
+
+    const carousel = button.closest(".illustrations-section");
+    const track = carousel && carousel.querySelector(".ill-track");
+    if (!track) return;
+
+    event.preventDefault();
+    const direction = Number(button.getAttribute("data-ill-scroll")) || 1;
+    const amount = Math.max(260, track.clientWidth * 0.72);
+    track.scrollBy({ left: direction * amount, behavior: "smooth" });
+  });
+})();

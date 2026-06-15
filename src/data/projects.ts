@@ -239,7 +239,7 @@ export const projects: Project[] = [
       "Cílem bylo propojit produktovou důvěryhodnost s kulturním přesahem, aby značka fungovala jako produkt, merch label i komunita."
     ],
     services: ["Brand Identity", "Product Design", "Photography", "Collage", "Campaigns", "Social Media"],
-    logo: "/images/houby-space-logo.png",
+    logo: "/images/houby-space-logo-v2.svg",
     hero: "/images/houby-space-lifestyle.webp",
     cardImage: "/images/houby-space-card.webp",
     palette: ["#4a6c5d", "#febc30", "#f4ecc4", "#f48dad"],

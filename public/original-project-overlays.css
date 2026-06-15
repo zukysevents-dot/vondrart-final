@@ -2695,3 +2695,22 @@ body.bng-project-open [class*="cursor"]{
   text-align:center!important;
   text-decoration:none!important;
 }
+
+/* houby-space-vector-logo-final */
+#houby-vondrart-overlay .hb-logo-v2{
+  width:min(78%,540px)!important;
+  max-height:260px!important;
+  height:auto!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+
+#houby-vondrart-overlay .hb-closing img[src*="houby-space-logo-v2"]{
+  width:min(100%,360px)!important;
+  max-height:220px!important;
+  object-fit:contain!important;
+  justify-self:end!important;
+  align-self:center!important;
+  padding:clamp(16px,2vw,28px)!important;
+  background:#4A6C5D!important;
+}

@@ -19,13 +19,13 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/fonts/NewBlack-800.otf" as="font" type="font/otf" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/NewBlack-400.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="/final-polish.css?v=20260615h" />
-        <link rel="stylesheet" href="/original-project-overlays.css?v=20260615k" />
+        <link rel="stylesheet" href="/final-polish.css?v=20260615l" />
+        <link rel="stylesheet" href="/original-project-overlays.css?v=20260615l" />
         <link rel="stylesheet" href="/original-project-overlays-local.css?v=20260615g" />
       </head>
       <body>
         {children}
-        <Script src="/site-interactions.js" strategy="afterInteractive" />
+        <Script src="/site-interactions.js?v=20260615l" strategy="afterInteractive" />
       </body>
     </html>
   );

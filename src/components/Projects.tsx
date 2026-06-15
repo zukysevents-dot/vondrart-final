@@ -672,10 +672,7 @@ function HoubyDetail() {
           <div className="hb-num">02</div>
           <h3 className="hb-heading">Logo &amp; barevný systém</h3>
           <div className="hb-logo-panel">
-            <div aria-label="Houby.space logo" className="hb-brand-logo-text">
-              <span className="top">Houby</span>
-              <span className="bottom">.space</span>
-            </div>
+            <img className="hb-logo-v2" alt="Houby.space logo" src="/images/houby-space-logo-v2.svg" {...deferredImageProps} />
           </div>
           <div className="hb-palette">
             <div className="hb-swatch" style={{ background: "#FEBC30", color: "#4A6C5D" }}>
@@ -701,36 +698,9 @@ function HoubyDetail() {
           </div>
         </section>
         <hr className="hb-rule" />
-        <section>
-          <div className="hb-num">03</div>
-          <h3 className="hb-heading">Typografie</h3>
-          <div className="hb-type-grid">
-            <div className="hb-type-card dark">
-              <div className="hb-type-name">Display — Cooper Black Std</div>
-              <div className="hb-type-sample-cooper">Aa Bb Cc</div>
-              <p style={{ marginTop: "18px", fontSize: "18px" }}>Reality is only a suggestion.</p>
-              <div className="hb-charset cooper">
-                A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                <br />a b c d e f g h i j k l m n o p q r s t u v w x y z
-                <br />0 1 2 3 4 5 6 7 8 9
-              </div>
-            </div>
-            <div className="hb-type-card">
-              <div className="hb-type-name">Secondary — CASaygon Light</div>
-              <div className="hb-type-sample-casaygon">Aa Bb Cc</div>
-              <p style={{ marginTop: "18px", fontSize: "18px" }}>See beyond the ordinary.</p>
-              <div className="hb-charset casaygon">
-                A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                <br />a b c d e f g h i j k l m n o p q r s t u v w x y z
-                <br />0 1 2 3 4 5 6 7 8 9
-              </div>
-            </div>
-          </div>
-        </section>
-        <hr className="hb-rule" />
         <section className="hb-grid">
           <div>
-            <div className="hb-num">04</div>
+            <div className="hb-num">03</div>
             <h3 className="hb-heading">O projektu</h3>
           </div>
           <div className="hb-copy">
@@ -749,7 +719,7 @@ function HoubyDetail() {
         <hr className="hb-rule" />
         <section className="hb-grid">
           <div>
-            <div className="hb-num">05</div>
+            <div className="hb-num">04</div>
             <h3 className="hb-heading">Vizuální svět</h3>
           </div>
           <div className="hb-copy">
@@ -764,7 +734,7 @@ function HoubyDetail() {
         </div>
         <hr className="hb-rule" />
         <section>
-          <div className="hb-num">06</div>
+          <div className="hb-num">05</div>
           <h3 className="hb-heading">Merch &amp; obaly</h3>
           <div className="hb-pack-grid">
             <img alt="houby.space packaging redesign" src="/images/houby-space-packaging.webp" {...deferredImageProps} />
@@ -782,7 +752,7 @@ function HoubyDetail() {
             </h3>
             <p>Výsledkem je výrazný lifestyle svět, který propojuje produkt, merch a vizuální komunikaci do jedné psychedelické značkové zkušenosti.</p>
           </div>
-          <img alt="houby.space logo" src="/images/houby-space-logo.png" {...deferredImageProps} />
+          <img alt="houby.space logo" src="/images/houby-space-logo-v2.svg" {...deferredImageProps} />
         </section>
       </div>
     </div>

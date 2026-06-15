@@ -890,3 +890,84 @@
     margin: 0 16px 16px !important;
   }
 }
+
+/* Final client notes: illustrations are a carousel again, about title uses the bold heading cut. */
+.ill-title-row {
+  align-items: flex-end !important;
+}
+
+.ill-controls {
+  display: flex !important;
+}
+
+.ill-arrow {
+  cursor: pointer !important;
+}
+
+.ill-carousel {
+  overflow: hidden !important;
+}
+
+.ill-track {
+  display: flex !important;
+  grid-template-columns: none !important;
+  gap: clamp(14px, 1.8vw, 24px) !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 4px 0 20px !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x mandatory !important;
+  scrollbar-width: none !important;
+}
+
+.ill-track::-webkit-scrollbar {
+  display: none !important;
+}
+
+.ill-card,
+.ill-card:nth-child(3) {
+  width: auto !important;
+  min-width: min(78vw, 320px) !important;
+  height: clamp(360px, 33vw, 560px) !important;
+  flex: 0 0 clamp(300px, 28vw, 460px) !important;
+  scroll-snap-align: start !important;
+}
+
+.ill-card:nth-child(3) {
+  flex-basis: clamp(360px, 38vw, 620px) !important;
+}
+
+.ill-card img {
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #fffdf7 !important;
+}
+
+.about-section h2 {
+  font-family: "New Black", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-weight: 800 !important;
+  line-height: 0.9 !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 760px) {
+  .ill-title-row {
+    gap: 18px !important;
+  }
+
+  .ill-controls {
+    padding-bottom: 4px !important;
+  }
+
+  .ill-arrow {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .ill-card,
+  .ill-card:nth-child(3) {
+    min-width: min(82vw, 330px) !important;
+    height: min(106vw, 460px) !important;
+    flex-basis: min(82vw, 330px) !important;
+  }
+}

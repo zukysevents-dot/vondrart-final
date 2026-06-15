@@ -38,6 +38,14 @@ export function Illustrations() {
 
       <div className="ill-title-row">
         <h2 className="ill-title">Ilustrace</h2>
+        <div className="ill-controls" aria-label="Ovládání carouselu ilustrací">
+          <button className="ill-arrow" type="button" data-ill-scroll="-1" aria-label="Předchozí ilustrace">
+            ←
+          </button>
+          <button className="ill-arrow" type="button" data-ill-scroll="1" aria-label="Další ilustrace">
+            →
+          </button>
+        </div>
       </div>
 
       <div className="ill-carousel">
