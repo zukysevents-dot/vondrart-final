@@ -61,7 +61,7 @@ export function ScrollFX() {
     const groups: Array<[string, string, string]> = [
       [".project-grid", ":scope > *", "card"],
       [".services-grid", ".service-item", "up"],
-      [".collabs-grid", ".collab-item", "card"]
+      [".collabs-grid", ".collab-item", "up"]
     ];
 
     const revealEls: Element[] = [];
@@ -139,16 +139,10 @@ export function ScrollFX() {
       };
     }
 
-    /* ----------------- SCROLL-VELOCITY MARQUEE + PARALLAX ------------------ */
-    // Výkon: offsety se cachují (init / resize / load); v rAF se jen ZAPISUJÍ
-    // transformy podle window.scrollY (žádné čtení layoutu v hot path).
-    const track = document.querySelector<HTMLElement>(".marquee-track");
-    let trackHalf = 0;
-    let marqueeX = 0;
-    let marqueeBase = 0;
-    let marqueeH = 0;
-    if (track) track.classList.add("fx-marquee-js");
-
+    /* ----------------------------- PARALLAX -------------------------------- */
+    // Marquee NEovládáme z JS — běží na vlastní konstantní CSS animaci (ticker),
+    // takže se hýbe NEZÁVISLE na scrollu. Parallax běží jen PŘI scrollu (scroll
+    // event + rAF flag), ne v nepřetržité smyčce → minimální zátěž, svižný scroll.
     type PItem = { el: HTMLElement; speed: number; base: number };
     const parallaxItems: PItem[] = [];
     const collect = (selector: string, speed: number) => {
@@ -167,12 +161,6 @@ export function ScrollFX() {
         const r = it.el.getBoundingClientRect();
         it.base = r.top + sy + r.height / 2;
       }
-      if (track) {
-        trackHalf = track.scrollWidth / 2;
-        const r = track.getBoundingClientRect();
-        marqueeBase = r.top + sy;
-        marqueeH = r.height;
-      }
     };
     measure();
     window.addEventListener("resize", measure, { passive: true });
@@ -182,37 +170,28 @@ export function ScrollFX() {
       window.removeEventListener("load", measure);
     });
 
-    const BASE_MARQUEE = 0.6; // px/frame klidový pohyb
-    let lastY = window.scrollY;
-    let rafId = 0;
-    const loop = () => {
+    const applyParallax = () => {
       const sy = window.scrollY;
-      const velocity = sy - lastY; // px/frame
-      lastY = sy;
       const vh = window.innerHeight;
-
       for (const it of parallaxItems) {
         const rel = it.base - sy;
         if (rel < -vh || rel > vh * 2) continue;
         const offset = (sy + vh / 2 - it.base) * it.speed;
         it.el.style.transform = `translate3d(0, ${(-offset).toFixed(2)}px, 0)`;
       }
-
-      if (track && trackHalf > 0) {
-        const rel = marqueeBase - sy;
-        if (rel > -marqueeH - 120 && rel < vh + 120) {
-          const dir = velocity >= 0 ? 1 : -1;
-          marqueeX -= BASE_MARQUEE + Math.min(Math.abs(velocity) * 0.22, 6) * dir;
-          if (marqueeX <= -trackHalf) marqueeX += trackHalf;
-          if (marqueeX > 0) marqueeX -= trackHalf;
-          const skew = Math.max(-4, Math.min(4, velocity * 0.12));
-          track.style.transform = `translate3d(${marqueeX.toFixed(2)}px,0,0) skewX(${skew.toFixed(2)}deg)`;
-        }
-      }
-      rafId = window.requestAnimationFrame(loop);
     };
-    rafId = window.requestAnimationFrame(loop);
-    cleanups.push(() => window.cancelAnimationFrame(rafId));
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        applyParallax();
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    cleanups.push(() => window.removeEventListener("scroll", onScroll));
+    applyParallax();
 
     /* --------------------- KURZOR: MAGNET + 3D TILT ------------------------ */
     document

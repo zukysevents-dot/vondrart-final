@@ -4,6 +4,13 @@
    html.scroll-fx-ready, takže bez JS je vše plně viditelné.
    ============================================================ */
 
+/* Svižný nativní scroll — přebíjíme `html { scroll-behavior: smooth }` z globals.
+   Plynulé skoky na kotvy řešíme cíleně přes JS (scrollIntoView smooth), takže
+   kolečko/touch zůstává okamžité a nereaguje „sluggish". */
+html.scroll-fx-ready {
+  scroll-behavior: auto;
+}
+
 /* ------------------------- REVEAL ------------------------- */
 /* Jednotná, ucelená animace. Plynulý decelerující easing (expo-out),
    jemný stagger (--rv-i krok 80ms). Vše opacity + transform (kompozitor). */
@@ -33,14 +40,6 @@ html.scroll-fx-ready [data-reveal="fade"] {
 html.scroll-fx-ready [data-reveal].is-revealed {
   opacity: 1;
   transform: none;
-}
-
-/* ----------------- SCROLL-VELOCITY MARQUEE ----------------- */
-/* Track přebírá JS (rychlost + skew dle scrollu); pruh .marquee zůstává rovný. */
-html.scroll-fx-ready .marquee-track.fx-marquee-js {
-  animation: none !important;
-  will-change: transform;
-  transform-origin: center center;
 }
 
 /* -------------------- MAGNET & 3D TILT --------------------- */
