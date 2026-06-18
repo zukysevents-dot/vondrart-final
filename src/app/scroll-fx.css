@@ -1,26 +1,8 @@
 /* ============================================================
-   scroll-fx.css — scroll reveal + smooth scroll + wow vrstva
+   scroll-fx.css — scroll reveal + wow vrstva (nativní scroll)
    Progressive enhancement: skrytý výchozí stav platí JEN pod
    html.scroll-fx-ready, takže bez JS je vše plně viditelné.
    ============================================================ */
-
-/* Lenis smooth scroll */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
 
 /* ------------------------- REVEAL ------------------------- */
 /* Jednotná, ucelená animace. Plynulý decelerující easing (expo-out),

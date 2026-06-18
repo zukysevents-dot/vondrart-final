@@ -1,21 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
 
 /**
- * ScrollFX — pohybová vrstva (progressive enhancement).
+ * ScrollFX — pohybová vrstva (progressive enhancement) na NATIVNÍM scrollu.
  *
- *  • Lenis smooth scroll + plynulé skoky na sekční kotvy
- *  • scroll reveal sekcí, nadpisů a staggered karet (IntersectionObserver)
- *  • clip-path wipe + Ken Burns scale u obrázků
+ *  • scroll reveal — sekce/nadpisy jednotlivě, mřížky jako koordinovaná skupina
+ *  • jemný parallax dekorací
  *  • scroll-velocity marquee (rychlost + jemný skew dle scrollu)
- *  • magnetická tlačítka/odkazy a 3D tilt karet (kurzor)
- *  • silnější parallax hero / dekorací
+ *  • magnetická tlačítka/odkazy + 3D tilt karet (kurzor)
+ *  • plynulé skoky na sekční kotvy (nativní scrollIntoView)
  *  • úvodní „opona" při prvním načtení
  *
- * Vše guardované přes prefers-reduced-motion a (pointer: coarse).
- * Bez JS zůstává web plně viditelný — skrytý stav platí jen pod html.scroll-fx-ready.
+ * Záměrně BEZ smooth-scroll knihovny — nativní scroll je 100% spolehlivý
+ * (nahoru i dolů, každé zařízení). Vše guardované přes prefers-reduced-motion
+ * a (pointer: coarse). Bez JS zůstává web plně viditelný.
  */
 export function ScrollFX() {
   useEffect(() => {
@@ -37,16 +36,16 @@ export function ScrollFX() {
         curtain.addEventListener("animationend", (e) => {
           if ((e as AnimationEvent).animationName.toLowerCase().includes("curtainup")) remove();
         });
-        const safety = window.setTimeout(remove, 2800); // pojistka, kdyby animationend nepřišel
+        const safety = window.setTimeout(remove, 2800);
         cleanups.push(() => window.clearTimeout(safety));
       }
     }
 
     /* ------------------------------- REVEAL -------------------------------- */
-    // Jednotná, ucelená animace: prvek najede jako JEDEN celek (fade + jemný
-    // nájezd zdola). Karty navíc lehce „dosednou" měřítkem (scale-settle).
-    // Žádné clip-wipe ani dělení obrázku/textu — vše se hýbe pohromadě.
-    // Čistě opacity + transform → běží na kompozitoru, takže to neseká.
+    // Jednotná, ucelená animace (fade + nájezd zdola; karty navíc scale-settle).
+    // Mřížky se odhalují jako KOORDINOVANÁ SKUPINA — celá mřížka se zkomponuje
+    // při příchodu do sekce (ne karta-po-kartě podle scrollu). Čistě opacity +
+    // transform → kompozitor, takže to neseká.
     const singles: Array<[string, string]> = [
       [".hero-label", "fade"],
       [".hero-title .title-line", "up"],
@@ -58,7 +57,7 @@ export function ScrollFX() {
       [".ill-top", "up"],
       [".ill-title-row", "up"]
     ];
-    // [container, child, variant]
+    // [container, child, variant] — container je trigger, děti se odhalí naráz se staggerem
     const groups: Array<[string, string, string]> = [
       [".project-grid", ":scope > *", "card"],
       [".services-grid", ".service-item", "up"],
@@ -78,19 +77,16 @@ export function ScrollFX() {
     });
     groups.forEach(([containerSel, childSel, variant]) => {
       document.querySelectorAll(containerSel).forEach((container) => {
-        container.querySelectorAll(childSel).forEach((child, i) => tag(child, variant, i % 6));
+        container.querySelectorAll(childSel).forEach((child, i) => tag(child, variant, i % 8, false));
+        revealEls.push(container); // trigger (sám se neschovává)
       });
     });
-
-    // ILUSTRACE — celá karta jako jeden celek; odhalí se hromadně se staggerem,
-    // jakmile se carousel dostane do záběru (DOM kaskáda nezávisí na horizontální
-    // pozici, takže se zobrazí i karty mimo pravý okraj viewportu).
+    // Ilustrace — celá karta jako celek; odhalí se hromadně přes trigger carouselu.
     document.querySelectorAll(".ill-card").forEach((el, i) => tag(el, "card", i % 6, false));
     document.querySelectorAll(".ill-carousel").forEach((el) => revealEls.push(el));
 
     const reveal = (el: Element) => {
       el.classList.add("is-revealed");
-      // kaskáda na vnořené reveal targety (např. ilustrační karty v carouselu)
       el.querySelectorAll?.("[data-reveal]:not(.is-revealed)").forEach((c) => c.classList.add("is-revealed"));
     };
     const inViewport = (el: Element) => {
@@ -110,34 +106,16 @@ export function ScrollFX() {
             }
           });
         },
-        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+        // threshold 0 + záporný spodní okraj → spustí se, když horní hrana prvku
+        // přejde ~12 % nad spodek viewportu (sekce/mřížka „při příchodu").
+        { threshold: 0, rootMargin: "0px 0px -12% 0px" }
       );
-      // Prvky už ve viewportu odhalíme okamžitě (bez bliknutí); ostatní se animují při scrollu.
       revealEls.forEach((el) => (inViewport(el) ? reveal(el) : io.observe(el)));
       cleanups.push(() => io.disconnect());
     }
 
-    if (!enableMotion) {
-      return () => {
-        cleanups.forEach((fn) => fn());
-        root.classList.remove("scroll-fx-ready");
-      };
-    }
-
-    /* --------------------------- SMOOTH SCROLL ----------------------------- */
-    const lenis = new Lenis({
-      duration: 1.05,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5
-    });
-
-    // Projektové :target overlaye mají vlastní vnitřní scroll — data-lenis-prevent
-    // zajistí nativní scroll uvnitř (jinak by Lenis ukradl kolečko).
-    document.querySelectorAll(".project-overlay").forEach((el) => el.setAttribute("data-lenis-prevent", ""));
-
-    // Plynulé skoky na sekční kotvy; odkazy overlayů nehijackujeme (:target).
+    /* ------------------- PLYNULÉ KOTVY (nativní, spolehlivé) ---------------- */
+    // Skoky na sekční kotvy; odkazy projektových overlayů necháme nativní (:target).
     const onAnchorClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey) return;
       const link = (event.target as Element | null)?.closest?.('a[href^="#"]');
@@ -148,20 +126,28 @@ export function ScrollFX() {
       if (!target) return;
       if (target.closest(".project-overlay") || link.closest(".project-overlay")) return;
       event.preventDefault();
-      lenis.scrollTo(target as HTMLElement, { offset: -8 });
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       if (history.replaceState) history.replaceState(null, "", href);
     };
     document.addEventListener("click", onAnchorClick);
+    cleanups.push(() => document.removeEventListener("click", onAnchorClick));
+
+    if (!enableMotion) {
+      return () => {
+        cleanups.forEach((fn) => fn());
+        root.classList.remove("scroll-fx-ready");
+      };
+    }
 
     /* ----------------- SCROLL-VELOCITY MARQUEE + PARALLAX ------------------ */
-    // Výkon: žádné čtení layoutu v rAF smyčce. Offsety se cachují (měří se jen
-    // při initu / resize / load), v každém framu se jen ZAPISUJÍ transformy.
+    // Výkon: offsety se cachují (init / resize / load); v rAF se jen ZAPISUJÍ
+    // transformy podle window.scrollY (žádné čtení layoutu v hot path).
     const track = document.querySelector<HTMLElement>(".marquee-track");
     let trackHalf = 0;
     let marqueeX = 0;
     let marqueeBase = 0;
     let marqueeH = 0;
-    if (track) track.classList.add("fx-marquee-js"); // přebírá řízení od CSS tickeru
+    if (track) track.classList.add("fx-marquee-js");
 
     type PItem = { el: HTMLElement; speed: number; base: number };
     const parallaxItems: PItem[] = [];
@@ -171,14 +157,11 @@ export function ScrollFX() {
         parallaxItems.push({ el, speed, base: 0 });
       });
     };
-    // .hero-mesh NEparalaxujeme — jsou to velké rozmazané aurora bloby a posouvat
-    // blur každý frame je drahé (re-raster). Necháme je na jejich vlastní CSS animaci.
     collect(".dot-grid", 0.08);
     collect(".hero-side-label", 0.12);
 
     const measure = () => {
       const sy = window.scrollY;
-      // transformy dočasně vynulovat, ať se neměří posunutá pozice
       for (const it of parallaxItems) it.el.style.transform = "";
       for (const it of parallaxItems) {
         const r = it.el.getBoundingClientRect();
@@ -199,15 +182,15 @@ export function ScrollFX() {
       window.removeEventListener("load", measure);
     });
 
-    const BASE_MARQUEE = 0.55; // px/frame klidový pohyb
+    const BASE_MARQUEE = 0.6; // px/frame klidový pohyb
+    let lastY = window.scrollY;
     let rafId = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      const sy = lenis.scroll;
-      const velocity = lenis.velocity;
+    const loop = () => {
+      const sy = window.scrollY;
+      const velocity = sy - lastY; // px/frame
+      lastY = sy;
       const vh = window.innerHeight;
 
-      // parallax — jen prvky blízko viewportu, čistě zápis transformu
       for (const it of parallaxItems) {
         const rel = it.base - sy;
         if (rel < -vh || rel > vh * 2) continue;
@@ -215,54 +198,46 @@ export function ScrollFX() {
         it.el.style.transform = `translate3d(0, ${(-offset).toFixed(2)}px, 0)`;
       }
 
-      // marquee — jen když je blízko viewportu
       if (track && trackHalf > 0) {
         const rel = marqueeBase - sy;
         if (rel > -marqueeH - 120 && rel < vh + 120) {
           const dir = velocity >= 0 ? 1 : -1;
-          marqueeX -= BASE_MARQUEE + Math.abs(velocity) * 0.55 * dir;
+          marqueeX -= BASE_MARQUEE + Math.min(Math.abs(velocity) * 0.22, 6) * dir;
           if (marqueeX <= -trackHalf) marqueeX += trackHalf;
           if (marqueeX > 0) marqueeX -= trackHalf;
-          const skew = Math.max(-4, Math.min(4, velocity * 0.3));
+          const skew = Math.max(-4, Math.min(4, velocity * 0.12));
           track.style.transform = `translate3d(${marqueeX.toFixed(2)}px,0,0) skewX(${skew.toFixed(2)}deg)`;
         }
       }
       rafId = window.requestAnimationFrame(loop);
     };
     rafId = window.requestAnimationFrame(loop);
-
-    cleanups.push(() => {
-      window.cancelAnimationFrame(rafId);
-      document.removeEventListener("click", onAnchorClick);
-      lenis.destroy();
-    });
+    cleanups.push(() => window.cancelAnimationFrame(rafId));
 
     /* --------------------- KURZOR: MAGNET + 3D TILT ------------------------ */
-    const magnetic = document.querySelectorAll<HTMLElement>(
-      ".header-cta, .desktop-nav a, .brand-mark, .contact-actions a, .ill-arrow"
-    );
-    magnetic.forEach((el) => {
-      el.classList.add("fx-magnetic");
-      const strength = el.classList.contains("header-cta") ? 0.4 : 0.3;
-      const onMove = (e: PointerEvent) => {
-        const r = el.getBoundingClientRect();
-        const mx = e.clientX - (r.left + r.width / 2);
-        const my = e.clientY - (r.top + r.height / 2);
-        el.style.transform = `translate(${(mx * strength).toFixed(1)}px, ${(my * strength).toFixed(1)}px)`;
-      };
-      const onLeave = () => {
-        el.style.transform = "";
-      };
-      el.addEventListener("pointermove", onMove);
-      el.addEventListener("pointerleave", onLeave);
-      cleanups.push(() => {
-        el.removeEventListener("pointermove", onMove);
-        el.removeEventListener("pointerleave", onLeave);
+    document
+      .querySelectorAll<HTMLElement>(".header-cta, .desktop-nav a, .brand-mark, .contact-actions a, .ill-arrow")
+      .forEach((el) => {
+        el.classList.add("fx-magnetic");
+        const strength = el.classList.contains("header-cta") ? 0.4 : 0.3;
+        const onMove = (e: PointerEvent) => {
+          const r = el.getBoundingClientRect();
+          const mx = e.clientX - (r.left + r.width / 2);
+          const my = e.clientY - (r.top + r.height / 2);
+          el.style.transform = `translate(${(mx * strength).toFixed(1)}px, ${(my * strength).toFixed(1)}px)`;
+        };
+        const onLeave = () => {
+          el.style.transform = "";
+        };
+        el.addEventListener("pointermove", onMove);
+        el.addEventListener("pointerleave", onLeave);
+        cleanups.push(() => {
+          el.removeEventListener("pointermove", onMove);
+          el.removeEventListener("pointerleave", onLeave);
+        });
       });
-    });
 
-    const tiltCards = document.querySelectorAll<HTMLElement>(".project-card");
-    tiltCards.forEach((card) => {
+    document.querySelectorAll<HTMLElement>(".project-card").forEach((card) => {
       card.classList.add("fx-tilt");
       const onMove = (e: PointerEvent) => {
         const r = card.getBoundingClientRect();
