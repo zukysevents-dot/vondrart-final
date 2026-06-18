@@ -55,12 +55,11 @@ export function ScrollFX() {
       [".ill-title-row", "up"]
     ];
     const groups: Array<[string, string]> = [
-      [".project-grid", ":scope > *"],
       [".services-grid", ".service-item"],
       [".collabs-grid", ".collab-item"]
-      // .ill-card NEpozorujeme jednotlivě — je to horizontální carousel a karty
-      // mimo pravý okraj by IO neprotnul (zůstaly by skryté). Ilustrace odhalíme
-      // hromadně, jakmile se carousel dostane do záběru (viz níže).
+      // .project-grid řešíme zvlášť (choreografie obrázek → text uvnitř karty).
+      // .ill-card NEpozorujeme jednotlivě — je to horizontální carousel; ilustrace
+      // odhalíme hromadně, jakmile se carousel dostane do záběru (viz níže).
     ];
 
     const revealEls: Element[] = [];
@@ -79,15 +78,30 @@ export function ScrollFX() {
         container.querySelectorAll(childSel).forEach((child, i) => tag(child, "up", i % 8));
       });
     });
-    // Obrázky tagujeme (kvůli skrytému stavu), ale NEpozorujeme přímo —
-    // IntersectionObserver nefiruje spolehlivě pro position:absolute obrázky
-    // uvnitř karet. Odhalí se kaskádou, jakmile se reveal-ne jejich rodič.
-    document.querySelectorAll(".project-card-image").forEach((el) => tag(el, "clip", 1, false));
-    document.querySelectorAll(".ill-card img").forEach((el, i) => tag(el, "clip-scale", i % 6, false));
+    // PROJEKTOVÉ KARTY — editorial choreografie:
+    // karta je jen trigger (sama se neschovává); obrázek se odkryje mask wipe
+    // (zdola nahoru) + jemný zoom, pak POSTUPNĚ naběhnou řádky textu.
+    // Obrázky nepozorujeme přímo (IO nefiruje pro position:absolute uvnitř karet)
+    // — vše se odhalí kaskádou přes reveal(card). Sloupcový offset dělá L→R domino.
+    document.querySelectorAll<HTMLElement>(".project-card").forEach((card, idx) => {
+      revealEls.push(card); // trigger (bez data-reveal → karta zůstává viditelná)
+      const col = (idx % 3) * 2; // mírný posun mezi sloupci v řadě
+      const img = card.querySelector(".project-card-image");
+      if (img) tag(img, "mask", col, false);
+      const rows = [
+        card.querySelector(".project-meta"),
+        card.querySelector("h3"),
+        card.querySelector("p"),
+        card.querySelector(".tag-row")
+      ];
+      rows.forEach((el, i) => {
+        if (el) tag(el, "up", col + 3 + i, false);
+      });
+    });
 
-    // Trigger pro ilustrace: kontejner carouselu se pozoruje (sám se neschovává),
-    // a jeho reveal kaskádou odhalí VŠECHNY obrázky uvnitř — i ty mimo viewport
-    // (DOM kaskáda nezávisí na horizontální pozici v carouselu).
+    // ILUSTRACE — stejný mask styl; odhalí se hromadně se staggerem, jakmile se
+    // carousel dostane do záběru (DOM kaskáda nezávisí na horizontální pozici).
+    document.querySelectorAll(".ill-card img").forEach((el, i) => tag(el, "mask", i % 6, false));
     document.querySelectorAll(".ill-carousel").forEach((el) => revealEls.push(el));
 
     const reveal = (el: Element) => {
