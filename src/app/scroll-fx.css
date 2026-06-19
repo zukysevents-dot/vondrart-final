@@ -26,6 +26,23 @@ body :not(.project-overlay):not(.project-overlay *) {
   font-family: var(--font-neue-haas) !important;
 }
 
+/* Všechny NADPISY napříč celým webem (včetně projektových detailů) → Neue Haas. */
+html.scroll-fx-ready :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    [class$="-heading"],
+    [class$="-title"],
+    [class$="-h1"],
+    [class$="-h2"],
+    [class$="-h3"]
+  ) {
+  font-family: var(--font-neue-haas) !important;
+}
+
 /* ============================================================
    AURORA JAKO FIXNÍ POZADÍ — barevný kruh jede se scrollem dolů,
    nafukuje se a je vidět v pozadí celého webu.
@@ -46,6 +63,8 @@ html.scroll-fx-ready .hero-mesh {
   position: fixed;
   inset: 0;
   z-index: -1;
+  /* bez ořezu — celý kruh zůstává vidět, gradient dohasne přirozeně */
+  overflow: visible;
   will-change: transform, opacity;
   transform-origin: 70% 30%;
 }
