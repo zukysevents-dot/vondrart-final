@@ -1,0 +1,338 @@
+/* ============================================================
+   scroll-fx.css — scroll reveal + wow vrstva (nativní scroll)
+   Progressive enhancement: skrytý výchozí stav platí JEN pod
+   html.scroll-fx-ready, takže bez JS je vše plně viditelné.
+   ============================================================ */
+
+/* Svižný nativní scroll — přebíjíme `html { scroll-behavior: smooth }` z globals.
+   Plynulé skoky na kotvy řešíme cíleně přes JS (scrollIntoView smooth), takže
+   kolečko/touch zůstává okamžité a nereaguje „sluggish". */
+html.scroll-fx-ready {
+  scroll-behavior: auto;
+}
+
+/* ============================================================
+   HLAVNÍ FONT WEBU — Neue Haas Grotesk (jednotně).
+   Projektové case-study overlaye si ponechávají svoje brandové fonty.
+   Fallback je Helvetica Neue (přímý příbuzný Neue Haas Grotesk); až se
+   přidá Adobe Fonts kit / lokální soubory, web je automaticky použije.
+   ============================================================ */
+:root {
+  --font-neue-haas: "Nortica", "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk Text Pro",
+    "NeueHaasGrotesk", "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/* `html body` (specificita 0,0,2) přebije i externí leaknutá `body !important`
+   pravidla z public CSS (např. bng overlay), aby i dědičný font byl Nortica. */
+html body,
+body :not(.project-overlay):not(.project-overlay *) {
+  font-family: var(--font-neue-haas) !important;
+}
+
+/* Všechny NADPISY napříč celým webem (včetně projektových detailů) → Neue Haas. */
+html.scroll-fx-ready :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    [class$="-heading"],
+    [class$="-title"],
+    [class$="-h1"],
+    [class$="-h2"],
+    [class$="-h3"]
+  ) {
+  font-family: var(--font-neue-haas) !important;
+}
+
+/* ============================================================
+   AURORA JAKO FIXNÍ POZADÍ — barevný kruh jede se scrollem dolů,
+   nafukuje se a je vidět v pozadí celého webu.
+   html drží papír vespod, sekce zprůhledníme, aby aurora prosvítala.
+   Tmavé bloky (marquee, kontakt) zůstávají kryté (čitelnost).
+   ============================================================ */
+html {
+  background: var(--paper);
+}
+html.scroll-fx-ready body {
+  background: transparent;
+}
+html.scroll-fx-ready .section,
+html.scroll-fx-ready .about-section {
+  background: transparent;
+}
+html.scroll-fx-ready .hero-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  /* bez ořezu — celý kruh zůstává vidět, gradient dohasne přirozeně */
+  overflow: visible;
+  will-change: transform, opacity;
+  transform-origin: 70% 30%;
+}
+
+/* ============================================================
+   PRO „BALÍČEK" — vlastní scrollbar + výběr textu v duchu značky.
+   ============================================================ */
+/* Firefox */
+html.scroll-fx-ready {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 17, 16, 0.3) transparent;
+}
+/* Chromium / Edge / Safari — tenký „plovoucí" pill scrollbar */
+html.scroll-fx-ready ::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+html.scroll-fx-ready ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.scroll-fx-ready ::-webkit-scrollbar-thumb {
+  background: rgba(17, 17, 16, 0.34);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  transition: background-color 200ms ease;
+}
+html.scroll-fx-ready ::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 17, 16, 0.58);
+  background-clip: padding-box;
+}
+/* horizontální carousel ilustrací zůstává bez scrollbaru */
+html.scroll-fx-ready .ill-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Výběr textu — brandová oranžová */
+html.scroll-fx-ready ::selection {
+  background: #ff5a1f;
+  color: #fff;
+}
+
+/* ---------------- COLLAB LOGA (reálné SVG/PNG) ---------------- */
+/* Reálná loga nahrazují stylizovaný text — zrušíme falešné rámečky/pill
+   a sjednotíme velikost. Wordmarky níž, symboly (tlak/crosskeys) vyšší. */
+.collabs-grid .collab-logo.has-logo {
+  min-height: 88px;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  justify-content: flex-start;
+}
+.collab-logo-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 180px;
+  max-height: 46px;
+  object-fit: contain;
+}
+.collab-tlak .collab-logo-img {
+  max-width: 110px;
+  max-height: 78px;
+}
+.collab-crosskeys .collab-logo-img {
+  max-width: 96px;
+  max-height: 84px;
+}
+.collab-spolek .collab-logo-img {
+  max-height: 40px;
+}
+
+/* ------------------------- REVEAL ------------------------- */
+/* Jednotná, ucelená animace. Plynulý decelerující easing (expo-out),
+   jemný stagger (--rv-i krok 80ms). Vše opacity + transform (kompozitor). */
+html.scroll-fx-ready [data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--rv-i, 0) * 80ms);
+}
+
+/* text / sekce — jemný nájezd zdola */
+html.scroll-fx-ready [data-reveal="up"] {
+  transform: translate3d(0, 26px, 0);
+}
+
+/* karty / dlaždice — nájezd zdola + lehké „dosednutí" měřítkem */
+html.scroll-fx-ready [data-reveal="card"] {
+  transform: translate3d(0, 32px, 0) scale(0.965);
+}
+
+html.scroll-fx-ready [data-reveal="fade"] {
+  transform: none;
+}
+
+/* Cílový (odhalený) stav — vše dosedne pohromadě */
+html.scroll-fx-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* -------------------- MAGNET & 3D TILT --------------------- */
+html.scroll-fx-ready .fx-magnetic {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+html.scroll-fx-ready .fx-tilt {
+  transform-style: preserve-3d;
+}
+
+/* ------------------ HERO „art" ⇄ „smart" BLINK ------------------ */
+/* Záměrná hříčka: „sm" a „," blikají SPOLEČNĚ, takže titulek čte vždy
+   čistě buď „creative art" nebo „creative, smart" (ne rozsypaný mezistav).
+   Řešeno přes opacity (kompozitor) + steps → krok bez plynulého fade,
+   takže to NEzatěžuje scroll a nekoliduje s reveal animacemi. */
+.blink-sm {
+  color: transparent !important;
+  -webkit-text-stroke: 1.2px var(--ink, #111110) !important;
+  animation: heroWordBlink 4.6s steps(1, end) infinite !important;
+}
+
+.blink-comma {
+  animation: heroWordBlink 4.6s steps(1, end) infinite !important;
+}
+
+@keyframes heroWordBlink {
+  0% {
+    opacity: 1;
+  } /* smart */
+  72% {
+    opacity: 0;
+  } /* art */
+  90%,
+  100% {
+    opacity: 1;
+  } /* smart */
+}
+
+/* --------------------- ÚVODNÍ INTRO ------------------------
+   Krémové pozadí → nálet oranžové koule + „vondrart studio",
+   poté koule odletí do pozadí (splyne s hero aurorou) a intro
+   se odhalí. JS úklid poslouchá keyframe `introOut`.
+   ----------------------------------------------------------- */
+.intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.4rem, 3.5vw, 2.6rem);
+  background: var(--paper, #f4f1eb);
+  animation: introOut 0.75s cubic-bezier(0.76, 0, 0.24, 1) 1.55s forwards;
+}
+
+/* Oranžová koule — stejný gradient jako hero aurora (.blob-a) */
+.intro-curtain .intro-orb {
+  width: min(360px, 56vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 42% 44%,
+    #ffe066 0%,
+    #ff9a24 28%,
+    #ff6a1f 46%,
+    rgba(255, 74, 20, 0.52) 60%,
+    rgba(255, 74, 20, 0.2) 72%,
+    rgba(255, 69, 0, 0) 84%
+  );
+  filter: blur(6px);
+  opacity: 0;
+  transform: scale(0.6);
+  will-change: transform, opacity;
+  animation:
+    introOrbIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both,
+    introOrbToBg 0.95s cubic-bezier(0.76, 0, 0.24, 1) 1.35s forwards;
+}
+
+.intro-curtain .intro-brand {
+  font-weight: 700;
+  font-size: clamp(2.2rem, 8.5vw, 5.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink, #111110);
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: transform, opacity;
+  animation:
+    introBrandIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both,
+    introBrandOut 0.55s cubic-bezier(0.76, 0, 0.24, 1) 1.35s forwards;
+}
+
+.intro-curtain .intro-brand em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+@keyframes introOrbIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Koule se „hodí do pozadí": odletí nahoru-doprava k počátku hero
+   aurory (origin ~70% 30%), nafoukne se a prosvítne. */
+@keyframes introOrbToBg {
+  to {
+    opacity: 0;
+    transform: translate(38vw, -40vh) scale(2.8);
+  }
+}
+
+@keyframes introBrandIn {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes introBrandOut {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes introOut {
+  to {
+    opacity: 0;
+  }
+}
+
+/* --------------------- REDUCED MOTION --------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html.scroll-fx-ready [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  html.scroll-fx-ready .fx-magnetic {
+    transition: none !important;
+  }
+
+  /* bez pohybu = ustálené čitelné „smart" (žádný blik) */
+  .blink-sm,
+  .blink-comma {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .hero-mesh,
+  .dot-grid,
+  .hero-side-label,
+  .project-card,
+  .ill-card img {
+    transform: none !important;
+  }
+
+  .intro-curtain {
+    display: none !important;
+  }
+}

@@ -65,7 +65,7 @@
   position: absolute;
   border-radius: 50%;
   transform: translate3d(0, 0, 0);
-  will-change: transform;
+  will-change: transform, opacity;
 }
 
 .blob-a {
@@ -74,15 +74,17 @@
   width: min(1048px, 68vw);
   height: min(1048px, 68vw);
   background: radial-gradient(
-    circle at 40% 45%,
+    circle at 42% 44%,
     #ffe066 0%,
-    #ff8c00 35%,
-    #ff4500 60%,
-    rgba(255, 69, 0, 0) 75%
+    #ff9a24 28%,
+    #ff6a1f 46%,
+    rgba(255, 74, 20, 0.52) 60%,
+    rgba(255, 74, 20, 0.2) 72%,
+    rgba(255, 69, 0, 0) 84%
   );
-  filter: blur(60px);
-  opacity: 0.88;
-  animation: floatA 18s ease-in-out infinite;
+  filter: blur(6px);
+  opacity: 0.92;
+  animation: floatA 22s ease-in-out infinite;
 }
 
 .blob-b {
@@ -90,10 +92,16 @@
   right: 106px;
   width: min(572px, 40vw);
   height: min(572px, 40vw);
-  background: radial-gradient(circle, #6d28d9 0%, #4c1d95 50%, rgba(76, 29, 149, 0) 70%);
-  filter: blur(70px);
-  opacity: 0.38;
-  animation: floatB 24s ease-in-out infinite;
+  background: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.95) 0%,
+    rgba(91, 33, 182, 0.6) 38%,
+    rgba(76, 29, 149, 0.22) 60%,
+    rgba(76, 29, 149, 0) 78%
+  );
+  filter: blur(6px);
+  opacity: 0.52;
+  animation: floatB 28s ease-in-out infinite;
 }
 
 .blob-c {
@@ -101,10 +109,16 @@
   right: -55px;
   width: min(350px, 28vw);
   height: min(350px, 28vw);
-  background: radial-gradient(circle, #fb7185 0%, #e11d48 60%, rgba(225, 29, 72, 0) 70%);
-  filter: blur(48px);
-  opacity: 0.28;
-  animation: floatC 21s ease-in-out infinite;
+  background: radial-gradient(
+    circle,
+    rgba(251, 113, 133, 0.9) 0%,
+    rgba(225, 29, 72, 0.42) 46%,
+    rgba(225, 29, 72, 0.14) 64%,
+    rgba(225, 29, 72, 0) 80%
+  );
+  filter: blur(6px);
+  opacity: 0.42;
+  animation: floatC 25s ease-in-out infinite;
 }
 
 .hero-content {
@@ -428,40 +442,67 @@
   transform: none;
 }
 
+/* Aurora — bohatý organický DRIFT (translate) + pulz přes OPACITY dech.
+   Záměrně BEZ scale/rotate: u rozmazaných blobů by to nutilo re-raster bluru
+   každý frame (drahé). Translate + opacity běží na kompozitoru → plynulé na GPU. */
 @keyframes floatA {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.82;
   }
-
+  25% {
+    transform: translate3d(-58px, 70px, 0);
+    opacity: 0.98;
+  }
   50% {
-    transform: translate3d(-40px, 50px, 0) scale(1.05);
+    transform: translate3d(-96px, 30px, 0);
+    opacity: 0.74;
+  }
+  75% {
+    transform: translate3d(38px, 82px, 0);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.82;
   }
 }
 
 @keyframes floatB {
-  0%,
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.42;
+  }
+  30% {
+    transform: translate3d(84px, -64px, 0);
+    opacity: 0.64;
+  }
+  60% {
+    transform: translate3d(46px, -104px, 0);
+    opacity: 0.34;
+  }
   100% {
     transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(30px, -40px, 0) scale(0.95);
+    opacity: 0.42;
   }
 }
 
 @keyframes floatC {
-  0%,
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.32;
+  }
+  33% {
+    transform: translate3d(-58px, 66px, 0);
+    opacity: 0.56;
+  }
+  66% {
+    transform: translate3d(62px, -46px, 0);
+    opacity: 0.26;
+  }
   100% {
     transform: translate3d(0, 0, 0);
-  }
-
-  33% {
-    transform: translate3d(-20px, 30px, 0);
-  }
-
-  66% {
-    transform: translate3d(20px, -20px, 0);
+    opacity: 0.32;
   }
 }
 
